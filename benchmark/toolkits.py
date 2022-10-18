@@ -133,7 +133,7 @@ class BasicTaskGen:
         np.random.seed(97 + seed)
         os.environ['PYTHONHASHSEED'] = str(seed)
 
-    def _remove_task(self):
+    def  _remove_task(self):
         "remove the task when generating failed"
         if self._check_task_exist():
             taskname = self.get_taskname()
@@ -193,6 +193,7 @@ class DefaultTaskGen(BasicTaskGen):
         print('Done.')
         return
 
+    # 不同的数据集加载方式不同，需要自己实现(重载)
     def load_data(self):
         """ load and pre-process the raw data"""
         return
@@ -201,8 +202,10 @@ class DefaultTaskGen(BasicTaskGen):
         # Partition self.train_data according to the delimiter and return indexes of data owned by each client as [c1data_idxs, ...] where the type of each element is list(int)
         if self.dist_id == 0:
             """IID"""
+            #将数据index打乱，然后按照client数量分配
             d_idxs = np.random.permutation(len(self.train_data))
             local_datas = np.array_split(d_idxs, self.num_clients)
+            #将每个client的数据转化为list
             local_datas = [data_idx.tolist() for data_idx in local_datas]
 
         elif self.dist_id == 1:
@@ -223,7 +226,7 @@ class DefaultTaskGen(BasicTaskGen):
                 contain = []
                 for i in range(self.num_clients):
                     current = []
-                    j =0
+                    j = 0
                     while (j < num):
                         mintime = np.min(times)
                         ind = np.random.choice(np.where(times == mintime)[0])
